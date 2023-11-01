@@ -16,7 +16,6 @@ _Integration to integrate with [Voltalis][voltalis]._
 Platform | Description
 -- | --
 `climate` | Provides functionality to interact with climate devices.
-`climate` | Provides functionality to interact with climate devices.
 
 ## Installation
 
