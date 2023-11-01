@@ -9,12 +9,13 @@
 
 [![Community Forum][forum-shield]][forum]
 
-_Integration to integrate with [Voltalis][integration_voltalis]._
+_Integration to integrate with [Voltalis][voltalis]._
 
 **This integration will set up the following platforms.**
 
 Platform | Description
 -- | --
+`climate` | Provides functionality to interact with climate devices.
 `climate` | Provides functionality to interact with climate devices.
 
 ## Installation
@@ -22,14 +23,14 @@ Platform | Description
 1. Using the tool of choice open the directory (folder) for your HA configuration (where you find `configuration.yaml`).
 1. If you do not have a `custom_components` directory (folder) there, you need to create it.
 1. In the `custom_components` directory (folder) create a new folder called `voltalis`.
-1. Download _all_ the files from the `custom_components/votalis/` directory (folder) in this repository.
+1. Download _all_ the files from the `custom_components/voltalis/` directory (folder) in this repository.
 1. Place the files you downloaded in the new directory (folder) you created.
 1. Restart Home Assistant
 1. In the HA UI go to "Configuration" -> "Integrations" click "+" and search for "Voltalis"
 
 ## Configuration is done in the UI
 
-<!---->
+Provide your [Voltalis account][voltalis_account] credential
 
 ## Contributions are welcome!
 
@@ -51,3 +52,5 @@ If you want to contribute to this please read the [Contribution guidelines](CONT
 [maintenance-shield]: https://img.shields.io/badge/maintainer-Johann%20Delahayes%20%40jdelahayes-blue.svg?style=for-the-badge
 [releases-shield]: https://img.shields.io/github/release/jdelahayes/ha-voltalis.svg?style=for-the-badge
 [releases]: https://github.com/jdelahayes/ha-voltalis/releases
+[voltalis]: https://www.voltalis.com/
+[voltalis_account]: https://myvoltalis.com/
