@@ -1,0 +1,16 @@
+{
+  "domain": "voltalis",
+  "name": "voltalis",
+  "codeowners": [
+    "@jdelahayes"
+  ],
+  "config_flow": true,
+  "iot_class": "cloud_polling",
+  "loggers": [
+    "voltalis"
+  ],
+  "requirements": [],
+  "documentation": "https://github.com/jdelahayes/ha-voltalis",
+  "issue_tracker": "https://github.com/jdelahayes/ha-voltalis/issues",
+  "version": "0.0.0"
+}
