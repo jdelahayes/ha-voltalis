@@ -2,7 +2,7 @@
     "name": "Voltalis",
     "filename": "voltalis.zip",
     "hide_default_branch": true,
-    "homeassistant": "2023.8.0",
+    "homeassistant": "2023.11.1",
     "render_readme": true,
     "zip_release": true
 }

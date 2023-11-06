@@ -1,4 +1,4 @@
-"""Config flow for Skybell integration."""
+"""Config flow for Voltalis integration."""
 from __future__ import annotations
 
 from collections.abc import Mapping
