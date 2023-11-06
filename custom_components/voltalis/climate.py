@@ -23,6 +23,7 @@ from .const import (
     HA_PRESET_MODES,
     VOLTALIS_CONTROLLER,
     VOLTALIS_PRESET_MODES,
+    VOLTALIS_HEATER_TYPE,
 )
 from .entity import VoltalisEntity
 
@@ -33,14 +34,11 @@ async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
     """Set up climate entity for Voltalis Appliance."""
-
     controller = hass.data[DOMAIN][entry.entry_id][VOLTALIS_CONTROLLER]
-
-    entities = [
-        VoltalisClimate(controller.coordinator, appliance)
-        for appliance in controller.appliances
-    ]
-
+    entities = []
+    for appliance in controller.appliances:
+        if appliance.applianceType == VOLTALIS_HEATER_TYPE:
+            entities.append(VoltalisClimate(controller.coordinator, appliance))
     async_add_entities(entities)
 
 
