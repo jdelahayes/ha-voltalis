@@ -2,9 +2,8 @@
 
 from __future__ import annotations
 
-import asyncio
 import logging
-from typing import TYPE_CHECKING, Any, cast
+from typing import Any
 
 from aiohttp.client import ClientSession, ClientTimeout
 from aiohttp.client_exceptions import (
@@ -18,8 +17,6 @@ from .exceptions import VoltalisAuthenticationException, VoltalisException
 from .appliance import VoltalisAppliance
 
 _LOGGER = logging.getLogger(__name__)
-logging.basicConfig(level=logging.DEBUG)
-
 
 class Voltalis:
     """Main Voltalis class."""
@@ -31,6 +28,7 @@ class Voltalis:
         auto_login: bool = False,
         session: ClientSession | None = None,
     ) -> None:
+        """Init Voltalis class."""
         self._username = username
         self._password = password
         self._auto_login = auto_login
@@ -58,6 +56,7 @@ class Voltalis:
             await self._session.close()
 
     async def async_initialize(self) -> list[VoltalisAppliance]:
+        """Async initialize."""
         if (
             self._username is not None
             and self._password is not None
@@ -93,13 +92,13 @@ class Voltalis:
 
     async def async_logout(self) -> bool:
         """Execute Voltalis logout."""
-        response = await self.async_send_request(
+        await self.async_send_request(
             CONST.LOGOUT_URL, retry=False, method=CONST.HTTPMethod.DELETE
         )
         _LOGGER.info("Logout successful")
 
     async def async_get_default_site_id(self) -> int:
-        """Get Voltalis account default site id"""
+        """Get Voltalis account default site id."""
         _LOGGER.debug("Get default site id start")
         response = await self.async_send_request(
             CONST.ACCOUNT_ME_URL, retry=False, method=CONST.HTTPMethod.GET
@@ -109,7 +108,7 @@ class Voltalis:
         return self.cache(CONST.DEFAULT_SITE_ID)
 
     async def async_get_appliances(self) -> list[VoltalisAppliance]:
-        """Get all Voltalis appliances"""
+        """Get all Voltalis appliances."""
         _LOGGER.debug("Get all Voltalis appliances")
         appliances_json = await self.async_send_request(
             CONST.APPLIANCE_URL, retry=False, method=CONST.HTTPMethod.GET
@@ -123,7 +122,7 @@ class Voltalis:
         return list(self._appliances.values())
 
     async def async_update_manualsettings(self) -> None:
-        """Get all Voltalis appliances manual settings"""
+        """Get all Voltalis appliances manual settings."""
         _LOGGER.debug("Get all Voltalis appliances manual settings")
         manualsettings_json = await self.async_send_request(
             CONST.MANUAL_SETTING_URL, retry=False, method=CONST.HTTPMethod.GET
@@ -137,7 +136,7 @@ class Voltalis:
             ].idManualSetting = manualsetting_json["id"]
 
     async def async_update_appliance(self, appliance_id: int) -> None:
-        """Get a Voltalis appliance"""
+        """Get a Voltalis appliance."""
         _LOGGER.debug(f"Update Voltalis appliance {appliance_id}")
         appliance_json = await self.async_send_request(
             f"{CONST.APPLIANCE_URL}/{appliance_id}",
@@ -154,11 +153,11 @@ class Voltalis:
         programming_id: int,
         **kwargs: Any,
     ) -> None:
-        """Set Voltalis appliance manual settings"""
+        """Set Voltalis appliance manual settings."""
         _LOGGER.debug(f"Set Voltalis appliance programming {programming_id} ")
         _LOGGER.debug(f"json = {kwargs.get('json','empty')}")
 
-        appliance_json = await self.async_send_request(
+        await self.async_send_request(
             f"{CONST.MANUAL_SETTING_URL}/{programming_id}",
             retry=False,
             method=CONST.HTTPMethod.PUT,

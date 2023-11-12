@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING
 
 from .models import VoltalisApplianceDict, VoltalisApplianceProgrammingDict
 
@@ -34,6 +34,7 @@ class VoltalisAppliance:
     async def async_update(
         self,
     ) -> None:
+        """Async appliance update."""
         await self._voltalis.async_update_appliance(appliance_id=self.id)
 
     @property
@@ -82,7 +83,7 @@ class VoltalisAppliance:
         return self._voltalis
 
     def get_json(self) -> []:
-        """Get appliance json"""
+        """Get appliance json."""
         return self._appliance_json
 
 
@@ -151,5 +152,5 @@ class VoltalisApplianceProgramming:
         return self._programming_json["defaultTemperature"]
 
     def get_json(self) -> []:
-        """Get programming json"""
+        """Get programming json."""
         return self._programming_json

@@ -6,7 +6,6 @@ from typing import Any
 
 from homeassistant.components.water_heater import (
     WaterHeaterEntity,
-    WaterHeaterEntityFeature,
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import UnitOfTemperature

@@ -5,12 +5,12 @@
     "@jdelahayes"
   ],
   "config_flow": true,
+  "documentation": "https://github.com/jdelahayes/ha-voltalis",
   "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/jdelahayes/ha-voltalis/issues",
   "loggers": [
     "voltalis"
   ],
   "requirements": [],
-  "documentation": "https://github.com/jdelahayes/ha-voltalis",
-  "issue_tracker": "https://github.com/jdelahayes/ha-voltalis/issues",
-  "version": "0.0.1"
+  "version": "0.0.2"
 }
