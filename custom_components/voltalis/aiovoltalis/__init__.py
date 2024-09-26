@@ -196,7 +196,7 @@ class Voltalis:
         program_id: int,
         **kwargs: Any,
     ) -> None:
-        _LOGGER.debug(f"Update Voltalis appliance {program_id}")
+        _LOGGER.debug(f"Set Voltalis program state for {program_id}")
         _LOGGER.debug(f"json = {kwargs.get('json','empty')}")
 
         await self.async_send_request(
