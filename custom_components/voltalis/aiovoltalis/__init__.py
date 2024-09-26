@@ -126,6 +126,7 @@ class Voltalis:
 
 
     async def async_get_programs(self) -> list[VoltalisProgram]:
+        """Get all Voltalis programs"""
         _LOGGER.debug("Get all Voltalis programs")
         programs_json = await self.async_send_request(
             CONST.PROGRAMMING_PROGRAMS_URL, retry=False, method=CONST.HTTPMethod.GET
@@ -136,18 +137,6 @@ class Voltalis:
 
         return list(self._programs.values())
 
-    async def async_update_program(self, program_id: int) -> list[VoltalisProgram]:
-        _LOGGER.debug(f"Update Voltalis appliance {program_id}")
-        programs_json = await self.async_send_request(
-            f"{CONST.PROGRAMMING_PROGRAMS_URL}/{program_id}",
-            retry=False,
-            method=CONST.HTTPMethod.PUT,
-        )
-        for program_json in programs_json:
-            program = VoltalisProgram(program_json, self)
-            self._programs[program.id] = program
-
-        return list(self._programs.values())
 
     async def async_update_manualsettings(self) -> None:
         """Get all Voltalis appliances manual settings"""
@@ -175,6 +164,16 @@ class Voltalis:
         self._appliances[appliance_id]._programming._programming_json = appliance_json[
             "programming"
         ]
+        
+    async def async_update_program(self, program_id: int) -> None:
+        """Get a Voltalis program"""
+        _LOGGER.debug(f"Update Voltalis program {program_id}")
+        program_json = await self.async_send_request(
+            f"{CONST.PROGRAMMING_PROGRAMS_URL}/{program_id}",
+            retry=False,
+            method=CONST.HTTPMethod.GET,
+        )
+        self._programs[program_id]._program_json = program_json
 
     async def async_set_manualsetting(
         self,
@@ -185,13 +184,28 @@ class Voltalis:
         _LOGGER.debug(f"Set Voltalis appliance programming {programming_id} ")
         _LOGGER.debug(f"json = {kwargs.get('json','empty')}")
 
-        appliance_json = await self.async_send_request(
+        await self.async_send_request(
             f"{CONST.MANUAL_SETTING_URL}/{programming_id}",
             retry=False,
             method=CONST.HTTPMethod.PUT,
             **kwargs,
         )
 
+    async def async_set_program_state(
+        self, 
+        program_id: int,
+        **kwargs: Any,
+    ) -> None:
+        _LOGGER.debug(f"Update Voltalis appliance {program_id}")
+        _LOGGER.debug(f"json = {kwargs.get('json','empty')}")
+
+        await self.async_send_request(
+            f"{CONST.PROGRAMMING_PROGRAMS_URL}/{program_id}",
+            retry=False,
+            method=CONST.HTTPMethod.PUT,
+            **kwargs,
+        )
+    
     async def async_send_request(
         self,
         url: str,

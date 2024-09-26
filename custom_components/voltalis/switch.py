@@ -54,7 +54,7 @@ class VoltalisProgram(VoltalisEntity, SwitchEntity):
             "name": self.program.name,
             "enabled": state,
         }
-        await self.appliance.api.async_set_manualsetting(
+        await self.program.api.async_set_program_state(
             json = curjson, 
-            program_id = self.appliance.idManualSetting
+            program_id = self.program.id
         )

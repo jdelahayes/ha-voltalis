@@ -87,6 +87,7 @@ class VoltalisController:
             async with asyncio.timeout(POLLING_TIMEOUT):
                 for program in self.programs:
                     await program.async_update()
+                    
         except VoltalisException as err:
             raise UpdateFailed(err) from err
 
