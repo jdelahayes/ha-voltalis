@@ -43,7 +43,7 @@ class VoltalisWaterHeater(VoltalisEntity, WaterHeaterEntity):
 
     def __init__(self, coordinator, appliance):
         """Initialize the entity."""
-        super().__init__(coordinator, appliance, "Appliance")
+        super().setupAppliance(coordinator, appliance)
 
     @property
     def target_temperature(self) -> float | None:
