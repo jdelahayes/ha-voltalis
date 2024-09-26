@@ -35,7 +35,7 @@ class VoltalisAppliance:
         self,
     ) -> None:
         await self._voltalis.async_update_appliance(appliance_id=self.id)
-
+    
     @property
     def id(self) -> int:
         """Get appliance id."""

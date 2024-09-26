@@ -16,6 +16,7 @@ from aiohttp.client_exceptions import (
 from . import const as CONST
 from .exceptions import VoltalisAuthenticationException, VoltalisException
 from .appliance import VoltalisAppliance
+from .program import VoltalisProgram
 
 _LOGGER = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
@@ -35,6 +36,7 @@ class Voltalis:
         self._password = password
         self._auto_login = auto_login
         self._appliances: dict[int, VoltalisAppliance] = {}
+        self._programs: dict[int, VoltalisProgram] = {}
 
         if session is None:
             session = ClientSession()
@@ -57,7 +59,7 @@ class Voltalis:
         if self._session and self._close_session:
             await self._session.close()
 
-    async def async_initialize(self) -> list[VoltalisAppliance]:
+    async def async_initialize(self) -> None:
         if (
             self._username is not None
             and self._password is not None
@@ -67,7 +69,7 @@ class Voltalis:
 
         await self.async_get_default_site_id()
         await self.async_get_appliances()
-        return list(self._appliances.values())
+        await self.async_get_programs()
 
     def cache(self, key: str) -> str:
         """Get a cached value."""
@@ -121,6 +123,31 @@ class Voltalis:
         await self.async_update_manualsettings()
 
         return list(self._appliances.values())
+
+
+    async def async_get_programs(self) -> list[VoltalisProgram]:
+        _LOGGER.debug("Get all Voltalis programs")
+        programs_json = await self.async_send_request(
+            CONST.PROGRAMMING_PROGRAMS_URL, retry=False, method=CONST.HTTPMethod.GET
+        )
+        for program_json in programs_json:
+            program = VoltalisProgram(program_json, self)
+            self._programs[program.id] = program
+
+        return list(self._programs.values())
+
+    async def async_update_program(self, program_id: int) -> list[VoltalisProgram]:
+        _LOGGER.debug(f"Update Voltalis appliance {program_id}")
+        programs_json = await self.async_send_request(
+            f"{CONST.PROGRAMMING_PROGRAMS_URL}/{program_id}",
+            retry=False,
+            method=CONST.HTTPMethod.PUT,
+        )
+        for program_json in programs_json:
+            program = VoltalisProgram(program_json, self)
+            self._programs[program.id] = program
+
+        return list(self._programs.values())
 
     async def async_update_manualsettings(self) -> None:
         """Get all Voltalis appliances manual settings"""

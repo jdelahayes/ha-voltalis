@@ -31,6 +31,7 @@ class VoltalisController:
         self._hass = hass
         self._voltalis = None
         self.appliances = None
+        self.programs = None
         self.coordinator = None
 
     async def async_setup_entry(self, entry):
@@ -60,6 +61,7 @@ class VoltalisController:
 
         await self._voltalis.async_initialize()
         self.appliances = await self._voltalis.async_get_appliances()
+        self.programs = await self._voltalis.async_get_programs()
 
         self.coordinator = DataUpdateCoordinator(
             self._hass,
@@ -81,13 +83,18 @@ class VoltalisController:
             async with asyncio.timeout(POLLING_TIMEOUT):
                 for appliance in self.appliances:
                     await appliance.async_update()
+
+            async with asyncio.timeout(POLLING_TIMEOUT):
+                for program in self.programs:
+                    await program.async_update()
         except VoltalisException as err:
             raise UpdateFailed(err) from err
 
     @callback
     def async_register_devices(self, entry):
-        """Register devices with the device registry for all Appliances."""
         device_registry = dr.async_get(self._hass)
+
+        """Register devices with the device registry for all Appliances."""
         for appliance in self.appliances:
             device_registry.async_get_or_create(
                 config_entry_id=entry.entry_id,
@@ -96,3 +103,14 @@ class VoltalisController:
                 manufacturer=appliance.modulatorType,
                 model=appliance.applianceType,
             )
+
+        """Register devices with the device registry for all Programs."""
+        for program in self.programs:
+            device_registry.async_get_or_create(
+                config_entry_id=entry.entry_id,
+                identifiers={(DOMAIN, str(program.id))},
+                name=program.name.capitalize(),
+                entry_type=dr.DeviceEntryType.SERVICE 
+            )
+
+
