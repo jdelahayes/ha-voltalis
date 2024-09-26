@@ -28,3 +28,10 @@ class VoltalisApplianceProgrammingDict(dict):
     endDate: str
     temperatureTarget: float
     defaultTemperature: float
+
+class VoltalisProgramDict(dict):
+    """Class for Voltalis program Dict."""
+
+    id: int
+    name: str
+    enabled: bool
