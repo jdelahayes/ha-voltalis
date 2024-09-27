@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
 
 from homeassistant.components.switch import (SwitchEntity)
 from homeassistant.config_entries import ConfigEntry
@@ -41,7 +40,7 @@ class VoltalisProgram(VoltalisEntity, SwitchEntity):
     @property
     def is_on(self) -> bool:
         return self.program.isEnabled
-    
+
     async def async_turn_on(self, **kwargs) -> None:
         await self.async_set_state(True)
 
@@ -55,6 +54,6 @@ class VoltalisProgram(VoltalisEntity, SwitchEntity):
             "enabled": state,
         }
         await self.program.api.async_set_program_state(
-            json = curjson, 
+            json = curjson,
             program_id = self.program.id
         )

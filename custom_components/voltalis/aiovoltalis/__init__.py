@@ -15,7 +15,7 @@ from aiohttp.client_exceptions import (
 from . import const as CONST
 from .exceptions import VoltalisAuthenticationException, VoltalisException
 from .appliance import VoltalisAppliance
-from .program import VoltalisProgram
+from .program import ProgramType, VoltalisProgram
 
 _LOGGER = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
@@ -124,13 +124,20 @@ class Voltalis:
         return list(self._appliances.values())
 
     async def async_get_programs(self) -> list[VoltalisProgram]:
-        """Get all Voltalis programs"""
-        _LOGGER.debug("Get all Voltalis programs")
+        _LOGGER.debug("Get all Voltalis user defined heater programs")
         programs_json = await self.async_send_request(
             CONST.PROGRAMMING_PROGRAMS_URL, retry=False, method=CONST.HTTPMethod.GET
         )
         for program_json in programs_json:
-            program = VoltalisProgram(program_json, self)
+            program = VoltalisProgram(program_json, self, ProgramType.USER)
+            self._programs[program.id] = program
+
+        _LOGGER.debug("Get all Voltalis default heater programs")
+        programs_json = await self.async_send_request(
+            CONST.QUICK_SETTINGS_URL, retry=False, method=CONST.HTTPMethod.GET
+        )
+        for program_json in programs_json:
+            program = VoltalisProgram(program_json, self, ProgramType.DEFAULT)
             self._programs[program.id] = program
 
         return list(self._programs.values())
@@ -175,9 +182,16 @@ class Voltalis:
             "programming"
         ]
 
-    async def async_update_program(self, program_id: int) -> None:
-        """Get a Voltalis program"""
-        _LOGGER.debug(f"Update Voltalis program {program_id}")
+    async def async_update_default_programs(self) -> None:
+        _LOGGER.debug("Update Voltalis default heater programs")
+        programs_json = await self.async_send_request(
+            CONST.QUICK_SETTINGS_URL, retry=False, method=CONST.HTTPMethod.GET
+        )
+        for program_json in programs_json:
+            self._programs[program_json["id"]]._program_json = program_json
+
+    async def async_update_user_program(self, program_id: int) -> None:
+        _LOGGER.debug(f"Update Voltalis user defined heater programs {program_id}")
         program_json = await self.async_send_request(
             f"{CONST.PROGRAMMING_PROGRAMS_URL}/{program_id}",
             retry=False,

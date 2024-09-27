@@ -21,6 +21,7 @@ ACCOUNT_ME_URL = BASE_URL + "/api/account/me"
 APPLIANCE_URL = BASE_URL + "/api/site/__site__/managed-appliance"
 MANUAL_SETTING_URL = BASE_URL + "/api/site/__site__/manualsetting"
 PROGRAMMING_PROGRAMS_URL = BASE_URL + "/api/site/__site__/programming/program"
+QUICK_SETTINGS_URL = BASE_URL + "/api/site/__site__/quicksettings"
 AUTODIAG_URL = BASE_URL + "/api/site/__site__/autodiag"
 
 # Cache
