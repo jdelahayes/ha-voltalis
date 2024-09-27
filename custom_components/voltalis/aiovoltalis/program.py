@@ -3,7 +3,7 @@ from __future__ import annotations
 from enum import Enum
 
 import logging
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING
 
 from .models import VoltalisProgramDict
 
@@ -13,6 +13,7 @@ if TYPE_CHECKING:
 _LOGGER = logging.getLogger(__name__)
 
 class ProgramType(Enum):
+    """Enum to differentiate Default and User heater programs."""
     DEFAULT = "DEFAULT"
     USER = "USER"
 
@@ -34,6 +35,7 @@ class VoltalisProgram:
     async def async_update(
         self,
     ) -> None:
+        """Update only user programs."""
         if self._program_type == ProgramType.USER:
             await self._voltalis.async_update_user_program(program_id=self.id)
 

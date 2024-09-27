@@ -45,7 +45,6 @@ class VoltalisEntity(CoordinatorEntity):
         Given a program id and a short name for the entity, we provide basic device
         info, name, unique id, etc. for all derived entities.
         """
-    
         super().__init__(coordinator)
         self.program = program
         self._attr_unique_id = str(program.id)

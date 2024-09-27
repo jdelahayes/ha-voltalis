@@ -89,12 +89,13 @@ class VoltalisController:
                 for program in self.programs:
                     await program.async_update()
                 await self._voltalis.async_update_default_programs()
-                    
+
         except VoltalisException as err:
             raise UpdateFailed(err) from err
 
     @callback
     def async_register_devices(self, entry):
+        """Register all devices."""
         device_registry = dr.async_get(self._hass)
 
         """Register devices with the device registry for all Appliances."""
@@ -113,7 +114,5 @@ class VoltalisController:
                 config_entry_id=entry.entry_id,
                 identifiers={(DOMAIN, str(program.id))},
                 name=program.name.capitalize(),
-                entry_type=dr.DeviceEntryType.SERVICE 
+                entry_type=dr.DeviceEntryType.SERVICE
             )
-
-

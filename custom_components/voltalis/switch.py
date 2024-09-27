@@ -21,6 +21,7 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
+    """Setup Switch Entities."""
     controller = hass.data[DOMAIN][entry.entry_id][VOLTALIS_CONTROLLER]
     entities = []
     for program in controller.programs:
@@ -41,17 +42,21 @@ class VoltalisProgram(VoltalisEntity, SwitchEntity):
 
     @property
     def is_on(self) -> bool:
+        """Get Switch State."""
         return self.program.isEnabled
 
     async def async_turn_on(self, **kwargs) -> None:
+        """Set state to ON."""
         await self.async_set_state(True)
         await self.coordinator.async_refresh()
 
     async def async_turn_off(self, **kwargs) -> None:
+        """Set state to OFF."""
         await self.async_set_state(False)
         await self.coordinator.async_refresh()
 
     async def async_set_state(self, state:bool) -> None:
+        """Set the state throught the API."""
         if self.program._program_type == ProgramType.USER:
             curjson = {
                 "name": self.program.name,
