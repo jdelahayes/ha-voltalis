@@ -215,12 +215,27 @@ class Voltalis:
             **kwargs,
         )
 
-    async def async_set_program_state(
+    async def async_set_default_program_state(
         self,
         program_id: int,
         **kwargs: Any,
     ) -> None:
-        _LOGGER.debug(f"Set Voltalis program state for {program_id}")
+        _LOGGER.debug(f"Set Voltalis default program state for {program_id}")
+        _LOGGER.debug(f"json = {kwargs.get('json','empty')}")
+
+        await self.async_send_request(
+            f"{CONST.QUICK_SETTINGS_URL}/{program_id}/enable",
+            retry=False,
+            method=CONST.HTTPMethod.PUT,
+            **kwargs,
+        )
+
+    async def async_set_user_program_state(
+        self,
+        program_id: int,
+        **kwargs: Any,
+    ) -> None:
+        _LOGGER.debug(f"Set Voltalis user program state for {program_id}")
         _LOGGER.debug(f"json = {kwargs.get('json','empty')}")
 
         await self.async_send_request(

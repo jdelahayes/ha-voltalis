@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import logging
 
+from custom_components.voltalis.aiovoltalis.program import ProgramType
 from homeassistant.components.switch import (SwitchEntity)
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -36,6 +37,7 @@ class VoltalisProgram(VoltalisEntity, SwitchEntity):
     def __init__(self, coordinator, program):
         """Initialize the entity."""
         super().setupProgram(coordinator, program)
+        self.coordinator = coordinator
 
     @property
     def is_on(self) -> bool:
@@ -43,17 +45,28 @@ class VoltalisProgram(VoltalisEntity, SwitchEntity):
 
     async def async_turn_on(self, **kwargs) -> None:
         await self.async_set_state(True)
+        await self.coordinator.async_refresh()
 
     async def async_turn_off(self, **kwargs) -> None:
         await self.async_set_state(False)
-
+        await self.coordinator.async_refresh()
 
     async def async_set_state(self, state:bool) -> None:
-        curjson = {
-            "name": self.program.name,
-            "enabled": state,
-        }
-        await self.program.api.async_set_program_state(
-            json = curjson,
-            program_id = self.program.id
-        )
+        if self.program._program_type == ProgramType.USER:
+            curjson = {
+                "name": self.program.name,
+                "enabled": state
+            }
+            await self.program.api.async_set_user_program_state(
+                json = curjson,
+                program_id = self.program.id
+            )
+        else:
+            curjson = {
+                "enabled": state
+            }
+            await self.program.api.async_set_default_program_state(
+                json = curjson,
+                program_id = self.program.id
+            )
+        await self.coordinator.async_refresh()
