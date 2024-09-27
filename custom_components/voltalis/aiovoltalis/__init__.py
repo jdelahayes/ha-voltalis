@@ -2,9 +2,8 @@
 
 from __future__ import annotations
 
-import asyncio
 import logging
-from typing import TYPE_CHECKING, Any, cast
+from typing import Any
 
 from aiohttp.client import ClientSession, ClientTimeout
 from aiohttp.client_exceptions import (
@@ -95,7 +94,7 @@ class Voltalis:
 
     async def async_logout(self) -> bool:
         """Execute Voltalis logout."""
-        response = await self.async_send_request(
+        await self.async_send_request(
             CONST.LOGOUT_URL, retry=False, method=CONST.HTTPMethod.DELETE
         )
         _LOGGER.info("Logout successful")
@@ -124,7 +123,6 @@ class Voltalis:
 
         return list(self._appliances.values())
 
-
     async def async_get_programs(self) -> list[VoltalisProgram]:
         """Get all Voltalis programs"""
         _LOGGER.debug("Get all Voltalis programs")
@@ -136,7 +134,6 @@ class Voltalis:
             self._programs[program.id] = program
 
         return list(self._programs.values())
-
 
     async def async_update_manualsettings(self) -> None:
         """Get all Voltalis appliances manual settings"""
@@ -152,6 +149,19 @@ class Voltalis:
                 manualsetting_json["idAppliance"]
             ].idManualSetting = manualsetting_json["id"]
 
+    async def async_update_appliances_diagnostics(self) -> None:
+        """Get Voltalis appliances diagnostics"""
+        _LOGGER.debug("Check diagnostic for all appliances")
+        diagnostics_json = await self.async_send_request(
+            CONST.AUTODIAG_URL,
+            retry=False,
+            method=CONST.HTTPMethod.GET,
+        )
+        for diagnostic in diagnostics_json:
+            self._appliances[diagnostic["csApplianceId"]].isReachable = diagnostic["status"] == "OK"
+            if diagnostic["status"] == "NOK":
+                _LOGGER.warning(f"Voltalis appliance '{self._appliances[diagnostic["csApplianceId"]].name}' with id {diagnostic["csApplianceId"]} not reachable.\n {diagnostic}")
+
     async def async_update_appliance(self, appliance_id: int) -> None:
         """Get a Voltalis appliance"""
         _LOGGER.debug(f"Update Voltalis appliance {appliance_id}")
@@ -164,7 +174,7 @@ class Voltalis:
         self._appliances[appliance_id]._programming._programming_json = appliance_json[
             "programming"
         ]
-        
+
     async def async_update_program(self, program_id: int) -> None:
         """Get a Voltalis program"""
         _LOGGER.debug(f"Update Voltalis program {program_id}")
@@ -192,7 +202,7 @@ class Voltalis:
         )
 
     async def async_set_program_state(
-        self, 
+        self,
         program_id: int,
         **kwargs: Any,
     ) -> None:
@@ -205,7 +215,7 @@ class Voltalis:
             method=CONST.HTTPMethod.PUT,
             **kwargs,
         )
-    
+
     async def async_send_request(
         self,
         url: str,

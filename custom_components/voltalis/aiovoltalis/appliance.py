@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING
 
 from .models import VoltalisApplianceDict, VoltalisApplianceProgrammingDict
 
@@ -19,6 +19,7 @@ class VoltalisAppliance:
     _appliance_json: VoltalisApplianceDict
     _programming: VoltalisApplianceProgramming
     idManualSetting: int
+    isReachable: bool
 
     def __init__(
         self, appliance_json: VoltalisApplianceDict, voltalis: Voltalis
@@ -35,7 +36,7 @@ class VoltalisAppliance:
         self,
     ) -> None:
         await self._voltalis.async_update_appliance(appliance_id=self.id)
-    
+
     @property
     def id(self) -> int:
         """Get appliance id."""
@@ -50,7 +51,7 @@ class VoltalisAppliance:
     def applianceType(self) -> str:
         """Get appliance type."""
         return self._appliance_json["applianceType"]
-
+    
     @property
     def modulatorType(self) -> str:
         """Get modulator type."""
