@@ -5,7 +5,7 @@ from homeassistant.components.climate import (
     PRESET_COMFORT,
     PRESET_ECO,
     PRESET_HOME,
-    PRESET_NONE 
+    PRESET_NONE
 )
 
 DEFAULT_NAME = "Voltalis"
@@ -37,5 +37,3 @@ POLLING_TIMEOUT = 10
 
 DEFAULT_MIN_TEMP = 7
 DEFAULT_MAX_TEMP = 24
-
-ATTR_STATUS = "status"

@@ -47,22 +47,28 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
 
     _attr_has_entity_name = True
     _attr_name = None
-    _attr_icon = "mdi:radiator"
-
     _attr_hvac_mode = HVACMode.HEAT
     _attr_hvac_modes = [HVACMode.AUTO, HVACMode.HEAT, HVACMode.OFF]
     _attr_preset_modes = list(HA_PRESET_MODES.values())
     _attr_max_temp = DEFAULT_MAX_TEMP
     _attr_min_temp = DEFAULT_MIN_TEMP
     _attr_supported_features = (
-        ClimateEntityFeature.PRESET_MODE | ClimateEntityFeature.TARGET_TEMPERATURE
+        ClimateEntityFeature.PRESET_MODE | ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.TURN_OFF
     )
     _attr_temperature_unit = UnitOfTemperature.CELSIUS
 
     def __init__(self, coordinator, appliance):
         """Initialize the entity."""
         super().setupAppliance(coordinator, appliance)
-
+    
+    @property
+    def icon(self) -> str:
+        if not self.appliance.isReachable:
+            return "mdi:radiator-off"
+        elif not self.appliance.programming.isOn:
+            return "mdi:radiator-disabled"
+        return "mdi:radiator"
+    
     @property
     def hvac_action(self) -> HVACAction | None:
         """Return the current running hvac operation."""
@@ -80,6 +86,10 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
         if self.appliance.programming.progType == "USER":
             return HVACMode.AUTO
         return self._attr_hvac_mode
+
+    async def async_turn_off(self) -> None:
+        """Turn the entity off."""
+        await self.async_set_hvac_mode(HVACMode.OFF)
 
     async def async_set_hvac_mode(self, hvac_mode: HVACMode) -> None:
         """Set new target hvac mode."""
@@ -106,26 +116,20 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
             curjson["enabled"] = True
             curjson["mode"] = "TEMPERATURE"
             curjson["untilFurtherNotice"] = True
-            await self.appliance.api.async_set_manualsetting(
-                json=curjson, programming_id=self.appliance.idManualSetting
-            )
-            await self.coordinator.async_request_refresh()
         elif hvac_mode == HVACMode.OFF:
             # HVACMode.OFF -> Manual setting enable: off, isOn: false
             curjson["enabled"] = True
             curjson["isOn"] = False
             curjson["untilFurtherNotice"] = True
-            await self.appliance.api.async_set_manualsetting(
-                json=curjson, programming_id=self.appliance.idManualSetting
-            )
-            await self.coordinator.async_request_refresh()
         elif hvac_mode == HVACMode.AUTO:
             # HVACMode.AUTO -> Manual setting enable: False
             curjson["enabled"] = False
-            await self.appliance.api.async_set_manualsetting(
-                json=curjson, programming_id=self.appliance.idManualSetting
-            )
-            await self.coordinator.async_request_refresh()
+        else:
+            # unsupported mode
+            return
+
+        await self.appliance.api.async_set_manualsetting(json=curjson, programming_id=self.appliance.idManualSetting)
+        await self.coordinator.async_request_refresh()
 
     @property
     def min_temp(self) -> float:

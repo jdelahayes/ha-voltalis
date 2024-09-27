@@ -2,9 +2,8 @@
 
 from __future__ import annotations
 
-import asyncio
 import logging
-from typing import TYPE_CHECKING, Any, cast
+from typing import Any
 
 from aiohttp.client import ClientSession, ClientTimeout
 from aiohttp.client_exceptions import (
@@ -16,7 +15,7 @@ from aiohttp.client_exceptions import (
 from . import const as CONST
 from .exceptions import VoltalisAuthenticationException, VoltalisException
 from .appliance import VoltalisAppliance
-from .program import VoltalisProgram
+from .program import ProgramType, VoltalisProgram
 
 _LOGGER = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
@@ -95,7 +94,7 @@ class Voltalis:
 
     async def async_logout(self) -> bool:
         """Execute Voltalis logout."""
-        response = await self.async_send_request(
+        await self.async_send_request(
             CONST.LOGOUT_URL, retry=False, method=CONST.HTTPMethod.DELETE
         )
         _LOGGER.info("Logout successful")
@@ -124,19 +123,24 @@ class Voltalis:
 
         return list(self._appliances.values())
 
-
     async def async_get_programs(self) -> list[VoltalisProgram]:
-        """Get all Voltalis programs"""
-        _LOGGER.debug("Get all Voltalis programs")
+        _LOGGER.debug("Get all Voltalis user defined heater programs")
         programs_json = await self.async_send_request(
             CONST.PROGRAMMING_PROGRAMS_URL, retry=False, method=CONST.HTTPMethod.GET
         )
         for program_json in programs_json:
-            program = VoltalisProgram(program_json, self)
+            program = VoltalisProgram(program_json, self, ProgramType.USER)
+            self._programs[program.id] = program
+
+        _LOGGER.debug("Get all Voltalis default heater programs")
+        programs_json = await self.async_send_request(
+            CONST.QUICK_SETTINGS_URL, retry=False, method=CONST.HTTPMethod.GET
+        )
+        for program_json in programs_json:
+            program = VoltalisProgram(program_json, self, ProgramType.DEFAULT)
             self._programs[program.id] = program
 
         return list(self._programs.values())
-
 
     async def async_update_manualsettings(self) -> None:
         """Get all Voltalis appliances manual settings"""
@@ -152,6 +156,19 @@ class Voltalis:
                 manualsetting_json["idAppliance"]
             ].idManualSetting = manualsetting_json["id"]
 
+    async def async_update_appliances_diagnostics(self) -> None:
+        """Get Voltalis appliances diagnostics"""
+        _LOGGER.debug("Check diagnostic for all appliances")
+        diagnostics_json = await self.async_send_request(
+            CONST.AUTODIAG_URL,
+            retry=False,
+            method=CONST.HTTPMethod.GET,
+        )
+        for diagnostic in diagnostics_json:
+            self._appliances[diagnostic["csApplianceId"]].isReachable = diagnostic["status"] == "OK"
+            if diagnostic["status"] == "NOK":
+                _LOGGER.warning(f"Voltalis appliance '{self._appliances[diagnostic["csApplianceId"]].name}' with id {diagnostic["csApplianceId"]} not reachable.\n {diagnostic}")
+
     async def async_update_appliance(self, appliance_id: int) -> None:
         """Get a Voltalis appliance"""
         _LOGGER.debug(f"Update Voltalis appliance {appliance_id}")
@@ -164,10 +181,17 @@ class Voltalis:
         self._appliances[appliance_id]._programming._programming_json = appliance_json[
             "programming"
         ]
-        
-    async def async_update_program(self, program_id: int) -> None:
-        """Get a Voltalis program"""
-        _LOGGER.debug(f"Update Voltalis program {program_id}")
+
+    async def async_update_default_programs(self) -> None:
+        _LOGGER.debug("Update Voltalis default heater programs")
+        programs_json = await self.async_send_request(
+            CONST.QUICK_SETTINGS_URL, retry=False, method=CONST.HTTPMethod.GET
+        )
+        for program_json in programs_json:
+            self._programs[program_json["id"]]._program_json = program_json
+
+    async def async_update_user_program(self, program_id: int) -> None:
+        _LOGGER.debug(f"Update Voltalis user defined heater programs {program_id}")
         program_json = await self.async_send_request(
             f"{CONST.PROGRAMMING_PROGRAMS_URL}/{program_id}",
             retry=False,
@@ -191,12 +215,27 @@ class Voltalis:
             **kwargs,
         )
 
-    async def async_set_program_state(
-        self, 
+    async def async_set_default_program_state(
+        self,
         program_id: int,
         **kwargs: Any,
     ) -> None:
-        _LOGGER.debug(f"Set Voltalis program state for {program_id}")
+        _LOGGER.debug(f"Set Voltalis default program state for {program_id}")
+        _LOGGER.debug(f"json = {kwargs.get('json','empty')}")
+
+        await self.async_send_request(
+            f"{CONST.QUICK_SETTINGS_URL}/{program_id}/enable",
+            retry=False,
+            method=CONST.HTTPMethod.PUT,
+            **kwargs,
+        )
+
+    async def async_set_user_program_state(
+        self,
+        program_id: int,
+        **kwargs: Any,
+    ) -> None:
+        _LOGGER.debug(f"Set Voltalis user program state for {program_id}")
         _LOGGER.debug(f"json = {kwargs.get('json','empty')}")
 
         await self.async_send_request(
@@ -205,7 +244,7 @@ class Voltalis:
             method=CONST.HTTPMethod.PUT,
             **kwargs,
         )
-    
+
     async def async_send_request(
         self,
         url: str,
