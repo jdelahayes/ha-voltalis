@@ -46,6 +46,9 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
     """Voltalis climate."""
 
     _attr_has_entity_name = True
+    _attr_name = None
+    _attr_icon = "mdi:radiator"
+
     _attr_hvac_mode = HVACMode.HEAT
     _attr_hvac_modes = [HVACMode.AUTO, HVACMode.HEAT, HVACMode.OFF]
     _attr_preset_modes = list(HA_PRESET_MODES.values())
@@ -58,7 +61,7 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
 
     def __init__(self, coordinator, appliance):
         """Initialize the entity."""
-        super().__init__(coordinator, appliance, "Appliance")
+        super().setupAppliance(coordinator, appliance)
 
     @property
     def hvac_action(self) -> HVACAction | None:

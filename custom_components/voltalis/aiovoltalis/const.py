@@ -20,6 +20,9 @@ LOGOUT_URL = BASE_URL + "/auth/logout"
 ACCOUNT_ME_URL = BASE_URL + "/api/account/me"
 APPLIANCE_URL = BASE_URL + "/api/site/__site__/managed-appliance"
 MANUAL_SETTING_URL = BASE_URL + "/api/site/__site__/manualsetting"
+PROGRAMMING_PROGRAMS_URL = BASE_URL + "/api/site/__site__/programming/program"
+PROGRAMMING_PROGRAM_URL = BASE_URL + "/api/site/__site__/programming/program/__program__"
+PROGRAMMING_STATE_URL = BASE_URL + "/api/site/__site__/programming/state"
 
 # Cache
 AUTH_TOKEN = "auth_token"
