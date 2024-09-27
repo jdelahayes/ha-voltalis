@@ -152,6 +152,20 @@ class Voltalis:
                 manualsetting_json["idAppliance"]
             ].idManualSetting = manualsetting_json["id"]
 
+    
+    async def async_update_appliances_diagnostics(self) -> None:
+        """Get Voltalis appliances diagnostics"""
+        _LOGGER.debug(f"Check diagnostic for all appliances")
+        diagnostics_json = await self.async_send_request(
+            CONST.AUTODIAG_URL,
+            retry=False,
+            method=CONST.HTTPMethod.GET,
+        )
+        for diagnostic in diagnostics_json:
+            self._appliances[diagnostic["csApplianceId"]].isReachable = diagnostic["status"] == "OK"
+            if diagnostic["status"] == "NOK":
+                _LOGGER.warning(f"Voltalis appliance '{self._appliances[diagnostic["csApplianceId"]].name}' with id {diagnostic["csApplianceId"]} not reachable.\n {diagnostic}")
+            
     async def async_update_appliance(self, appliance_id: int) -> None:
         """Get a Voltalis appliance"""
         _LOGGER.debug(f"Update Voltalis appliance {appliance_id}")

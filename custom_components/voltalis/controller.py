@@ -83,6 +83,7 @@ class VoltalisController:
             async with asyncio.timeout(POLLING_TIMEOUT):
                 for appliance in self.appliances:
                     await appliance.async_update()
+                await self._voltalis.async_update_appliances_diagnostics()
 
             async with asyncio.timeout(POLLING_TIMEOUT):
                 for program in self.programs:

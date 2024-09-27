@@ -47,8 +47,6 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
 
     _attr_has_entity_name = True
     _attr_name = None
-    _attr_icon = "mdi:radiator"
-
     _attr_hvac_mode = HVACMode.HEAT
     _attr_hvac_modes = [HVACMode.AUTO, HVACMode.HEAT, HVACMode.OFF]
     _attr_preset_modes = list(HA_PRESET_MODES.values())
@@ -62,7 +60,15 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
     def __init__(self, coordinator, appliance):
         """Initialize the entity."""
         super().setupAppliance(coordinator, appliance)
-
+    
+    @property
+    def icon(self) -> str:
+        if not self.appliance.isReachable:
+            return "mdi:radiator-off"
+        elif not self.appliance.programming.isOn:
+            return "mdi:radiator-disabled"
+        return "mdi:radiator"
+    
     @property
     def hvac_action(self) -> HVACAction | None:
         """Return the current running hvac operation."""
