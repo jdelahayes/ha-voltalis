@@ -5,7 +5,7 @@ from homeassistant.components.climate import (
     PRESET_COMFORT,
     PRESET_ECO,
     PRESET_HOME,
-    PRESET_NONE 
+    PRESET_NONE
 )
 
 DEFAULT_NAME = "Voltalis"

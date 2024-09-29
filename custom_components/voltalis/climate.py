@@ -60,15 +60,16 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
     def __init__(self, coordinator, appliance):
         """Initialize the entity."""
         super().setupAppliance(coordinator, appliance)
-    
+
     @property
     def icon(self) -> str:
+        """Set the icon of the entity."""
         if not self.appliance.isReachable:
             return "mdi:radiator-off"
         elif not self.appliance.programming.isOn:
             return "mdi:radiator-disabled"
         return "mdi:radiator"
-    
+
     @property
     def hvac_action(self) -> HVACAction | None:
         """Return the current running hvac operation."""

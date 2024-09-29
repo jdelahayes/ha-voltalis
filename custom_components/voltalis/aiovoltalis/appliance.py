@@ -35,6 +35,7 @@ class VoltalisAppliance:
     async def async_update(
         self,
     ) -> None:
+        """Update appliance throught Voltalis API."""
         await self._voltalis.async_update_appliance(appliance_id=self.id)
 
     @property
@@ -83,7 +84,7 @@ class VoltalisAppliance:
         return self._voltalis
 
     def get_json(self) -> []:
-        """Get appliance json"""
+        """Get appliance json."""
         return self._appliance_json
 
 
@@ -152,5 +153,5 @@ class VoltalisApplianceProgramming:
         return self._programming_json["defaultTemperature"]
 
     def get_json(self) -> []:
-        """Get programming json"""
+        """Get programming json."""
         return self._programming_json
